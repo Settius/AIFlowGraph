@@ -1,6 +1,7 @@
 // Copyright https://github.com/MothCocoon/FlowGraph/graphs/contributors
 
 #include "AddOns/FlowNodeAddOn_PredicateCompareBlackboardValue.h"
+#include "FlowNodeBlackboardUtils.h"
 #include "AIFlowActorBlackboardHelper.h"
 #include "Blackboard/FlowBlackboardEntryValue.h"
 #include "FlowAsset.h"
@@ -193,12 +194,7 @@ UBlackboardKeyType const* UFlowNodeAddOn_PredicateCompareBlackboardValue::TryGet
 
 UBlackboardData* UFlowNodeAddOn_PredicateCompareBlackboardValue::GetBlackboardAssetForEditor() const
 {
-	if (IsValid(SpecificBlackboardAsset))
-	{
-		return SpecificBlackboardAsset;
-	}
-
-	return GetBlackboardAsset();
+	return FFlowNodeBlackboardUtils::GetBlackboardAssetForEditor(SpecificBlackboardAsset, GetFlowAsset());
 }
 
 UBlackboardData* UFlowNodeAddOn_PredicateCompareBlackboardValue::GetBlackboardAssetForPropertyHandle(const TSharedPtr<IPropertyHandle>& PropertyHandle) const
