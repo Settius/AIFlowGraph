@@ -23,6 +23,11 @@
 			"Name" : "AIFlowEditor",
 			"Type" : "Editor",
 			"LoadingPhase" : "Default"
+		},
+		{
+			"Name" : "AIFlowTests",
+			"Type" : "UncookedOnly",
+			"LoadingPhase" : "Default"
 		}
 	],
 	"Plugins": [
