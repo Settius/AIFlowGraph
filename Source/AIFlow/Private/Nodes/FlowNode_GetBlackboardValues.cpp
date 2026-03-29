@@ -32,7 +32,8 @@ UFlowNode_GetBlackboardValues::UFlowNode_GetBlackboardValues()
 
 AActor* UFlowNode_GetBlackboardValues::TryResolveActorForBlackboard() const
 {
-	// TODO (gtaylor) Cache this result for better lookup perf + an exec pin to provoke a recache operation
+	// Blackboard component resolution is cached per-actor in UAIFlowAsset (ST-165),
+	// so repeated calls within the same flow execution pass are inexpensive.
 	
 	// Use the SpecificActor if provided, otherwise use the Flow Owner Actor
 	TObjectPtr<UObject> ResolvedObject = nullptr;

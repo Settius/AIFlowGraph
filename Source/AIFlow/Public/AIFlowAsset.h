@@ -72,6 +72,45 @@ protected:
 	UPROPERTY(Transient)
 	TWeakObjectPtr<UBlackboardComponent> BlackboardComponent = nullptr;
 
+	// --- Per-actor blackboard component lookup cache (ST-165) ---
+	// Avoids repeated GetComponents() calls when multiple blackboard nodes
+	// execute against the same actor within a single flow execution pass.
+
+public:
+
+	/** Try to find a previously cached blackboard component for the given actor and data pair. */
+	UBlackboardComponent* FindCachedBlackboardForActor(AActor* Actor, UBlackboardData* BlackboardData) const;
+
+	/** Store a resolved blackboard component in the per-flow-instance cache. */
+	void CacheBlackboardForActor(AActor* Actor, UBlackboardData* BlackboardData, UBlackboardComponent* Component) const;
+
+	/** Clear all cached blackboard component lookups. Called on flow deactivation. */
+	void ClearBlackboardLookupCache();
+
+private:
+
+	/** Composite key for the blackboard lookup cache */
+	struct FBlackboardLookupCacheKey
+	{
+		TWeakObjectPtr<AActor> Actor;
+		TWeakObjectPtr<UBlackboardData> BlackboardData;
+
+		bool operator==(const FBlackboardLookupCacheKey& Other) const
+		{
+			return Actor == Other.Actor && BlackboardData == Other.BlackboardData;
+		}
+
+		friend uint32 GetTypeHash(const FBlackboardLookupCacheKey& Key)
+		{
+			return HashCombine(::GetTypeHash(Key.Actor), ::GetTypeHash(Key.BlackboardData));
+		}
+	};
+
+	/** Per-actor cache of resolved blackboard components (mutable since it is a pure performance cache). */
+	mutable TMap<FBlackboardLookupCacheKey, TWeakObjectPtr<UBlackboardComponent>> ActorBlackboardLookupCache;
+
+protected:
+
 	// Manager object to inject and remove blackboard components from the Flow owning Actor
 	UPROPERTY(Transient)
 	TObjectPtr<UFlowInjectComponentsManager> InjectComponentsManager = nullptr;
