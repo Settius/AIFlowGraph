@@ -47,6 +47,9 @@ void UAIFlowAsset::InitializeInstance(const TWeakObjectPtr<UObject> InOwner, UFl
 
 void UAIFlowAsset::DeinitializeInstance()
 {
+	// Clear the per-actor blackboard lookup cache before tearing down (ST-165)
+	ClearBlackboardLookupCache();
+
 	Super::DeinitializeInstance();
 
 	// We want to keep the blackboard around until we have deinitialized everything else. 
@@ -191,4 +194,42 @@ void UAIFlowAsset::SetKeySelfOnBlackboardComponent(UBlackboardComponent* Blackbo
 	}
 
 	BlackboardComp->SetValueAsObject(FBlackboard::KeySelf, ActorSelf);
+}
+
+// --- Per-actor blackboard lookup cache (ST-165) ---
+
+UBlackboardComponent* UAIFlowAsset::FindCachedBlackboardForActor(AActor* Actor, UBlackboardData* BlackboardData) const
+{
+	if (!::IsValid(Actor))
+	{
+		return nullptr;
+	}
+
+	const FBlackboardLookupCacheKey Key{Actor, BlackboardData};
+	if (const TWeakObjectPtr<UBlackboardComponent>* Found = ActorBlackboardLookupCache.Find(Key))
+	{
+		if (Found->IsValid())
+		{
+			return Found->Get();
+		}
+
+		// Stale entry – remove it so we don't repeatedly check a dead pointer
+		ActorBlackboardLookupCache.Remove(Key);
+	}
+
+	return nullptr;
+}
+
+void UAIFlowAsset::CacheBlackboardForActor(AActor* Actor, UBlackboardData* BlackboardData, UBlackboardComponent* Component) const
+{
+	if (::IsValid(Actor) && ::IsValid(Component))
+	{
+		const FBlackboardLookupCacheKey Key{Actor, BlackboardData};
+		ActorBlackboardLookupCache.FindOrAdd(Key) = Component;
+	}
+}
+
+void UAIFlowAsset::ClearBlackboardLookupCache()
+{
+	ActorBlackboardLookupCache.Empty();
 }
