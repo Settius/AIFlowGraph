@@ -9,7 +9,7 @@
 	"MarketplaceURL" : "",
 	"SupportURL": "https://discord.gg/zMtMQ2vUUa",
 	"EnabledByDefault" : false,
-	"CanContainContent" : true,
+	"CanContainContent" : false,
 	"IsBetaVersion" : false,
 	"Installed" : false,
 	"Modules" :
