@@ -14,7 +14,6 @@ public class AIFlowEditor : ModuleRules
 			"AssetDefinition",
 			"Engine",
 			"Flow",
-			"FlowDebugger",
 			"FlowEditor",
 			"InputCore",
 			"Slate",
